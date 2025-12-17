@@ -102,8 +102,9 @@ window.addEventListener('message', (event) => {
         timestamp: event.data.timestamp,
         data: event.data.data
       }
-    }).catch(() => {
-      // Ignore errors if extension context is invalidated
+    }).catch((error) => {
+      // Extension context may be invalidated during page navigation
+      console.debug('DataLayer extension: Failed to send message', error);
     });
   } else if (event.data.type === 'INITIAL_DATALAYER' && 
              event.data.source === 'datalayer-extension') {
@@ -111,8 +112,9 @@ window.addEventListener('message', (event) => {
     chrome.runtime.sendMessage({
       type: 'initialDataLayer',
       data: event.data.data
-    }).catch(() => {
-      // Ignore errors if extension context is invalidated
+    }).catch((error) => {
+      // Extension context may be invalidated during page navigation
+      console.debug('DataLayer extension: Failed to send initial data', error);
     });
   }
 });

@@ -28,8 +28,13 @@ clearBtn.addEventListener('click', () => {
 });
 
 // Format JSON with syntax highlighting
-function formatJSON(obj, indent = 0) {
+function formatJSON(obj, indent = 0, maxDepth = 20) {
   const spaces = '  '.repeat(indent);
+  
+  // Prevent stack overflow with deeply nested objects
+  if (indent > maxDepth) {
+    return `<span class="json-string">"[Max depth reached]"</span>`;
+  }
   
   if (obj === null) {
     return `<span class="json-null">null</span>`;
@@ -49,7 +54,7 @@ function formatJSON(obj, indent = 0) {
   
   if (Array.isArray(obj)) {
     if (obj.length === 0) return '[]';
-    const items = obj.map(item => `${spaces}  ${formatJSON(item, indent + 1)}`);
+    const items = obj.map(item => `${spaces}  ${formatJSON(item, indent + 1, maxDepth)}`);
     return `[\n${items.join(',\n')}\n${spaces}]`;
   }
   
@@ -57,7 +62,7 @@ function formatJSON(obj, indent = 0) {
     const keys = Object.keys(obj);
     if (keys.length === 0) return '{}';
     const items = keys.map(key => {
-      const value = formatJSON(obj[key], indent + 1);
+      const value = formatJSON(obj[key], indent + 1, maxDepth);
       return `${spaces}  <span class="json-key">"${escapeHtml(key)}"</span>: ${value}`;
     });
     return `{\n${items.join(',\n')}\n${spaces}}`;
