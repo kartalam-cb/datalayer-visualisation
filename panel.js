@@ -40,16 +40,22 @@
         if (!isException && result) {
           try {
             const dataLayerEvents = JSON.parse(result);
-            dataLayerEvents.forEach((event, index) => {
-              addEvent({
-                index: index,
-                timestamp: Date.now(),
-                url: window.location.href,
-                data: event,
-                gtmPreview: { active: false, containerIds: [] },
-                ga4PropertyId: null
-              });
-            });
+            // Get the inspected window URL
+            chrome.devtools.inspectedWindow.eval(
+              'window.location.href',
+              function(url) {
+                dataLayerEvents.forEach((event, index) => {
+                  addEvent({
+                    index: index,
+                    timestamp: Date.now(),
+                    url: url || '',
+                    data: event,
+                    gtmPreview: { active: false, containerIds: [] },
+                    ga4PropertyId: null
+                  });
+                });
+              }
+            );
           } catch (e) {
             console.error('Error parsing dataLayer:', e);
           }
@@ -340,7 +346,7 @@
         return `<span class="json-bracket">[]</span>`;
       }
       
-      const id = 'collapse-' + Math.random().toString(36).substr(2, 9);
+      const id = 'collapse-' + Math.random().toString(36).substring(2, 11);
       let html = `<div class="json-line">`;
       html += `<span class="json-toggle" data-target="${id}">▼</span>`;
       html += `<span class="json-bracket">[</span>`;
@@ -362,7 +368,7 @@
         return `<span class="json-bracket">{}</span>`;
       }
       
-      const id = 'collapse-' + Math.random().toString(36).substr(2, 9);
+      const id = 'collapse-' + Math.random().toString(36).substring(2, 11);
       let html = `<div class="json-line">`;
       html += `<span class="json-toggle" data-target="${id}">▼</span>`;
       html += `<span class="json-bracket">{</span>`;

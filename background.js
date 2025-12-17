@@ -71,19 +71,53 @@ chrome.webRequest.onErrorOccurred.addListener(
 );
 
 function isAnalyticsRequest(url) {
-  return url.includes('google-analytics.com/g/collect') ||
-         url.includes('google-analytics.com/collect') ||
-         url.includes('analytics.google.com') ||
-         url.includes('googletagmanager.com/gtm.js') ||
-         url.includes('googletagmanager.com/gtag/');
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname;
+    const pathname = urlObj.pathname;
+    
+    // Check for exact hostname matches to prevent URL injection
+    if (hostname === 'www.google-analytics.com' || hostname === 'google-analytics.com') {
+      return pathname.includes('/g/collect') || pathname.includes('/collect');
+    }
+    if (hostname === 'analytics.google.com') {
+      return true;
+    }
+    if (hostname === 'www.googletagmanager.com' || hostname === 'googletagmanager.com') {
+      return pathname.includes('/gtm.js') || pathname.includes('/gtag/');
+    }
+    
+    return false;
+  } catch (e) {
+    return false;
+  }
 }
 
 function getRequestType(url) {
-  if (url.includes('google-analytics.com/g/collect')) return 'GA4';
-  if (url.includes('google-analytics.com/collect')) return 'UA';
-  if (url.includes('googletagmanager.com')) return 'GTM';
-  if (url.includes('analytics.google.com')) return 'GA';
-  return 'Unknown';
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname;
+    const pathname = urlObj.pathname;
+    
+    if ((hostname === 'www.google-analytics.com' || hostname === 'google-analytics.com') && 
+        pathname.includes('/g/collect')) {
+      return 'GA4';
+    }
+    if ((hostname === 'www.google-analytics.com' || hostname === 'google-analytics.com') && 
+        pathname.includes('/collect')) {
+      return 'UA';
+    }
+    if (hostname === 'www.googletagmanager.com' || hostname === 'googletagmanager.com') {
+      return 'GTM';
+    }
+    if (hostname === 'analytics.google.com') {
+      return 'GA';
+    }
+    
+    return 'Unknown';
+  } catch (e) {
+    return 'Unknown';
+  }
 }
 
 // Handle messages from content script and devtools

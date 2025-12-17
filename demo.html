@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataLayer Visualizer Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #4285f4;
+    }
+    .button-group {
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #3367d6;
+    }
+    .log {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .log div {
+      margin: 5px 0;
+      padding: 5px;
+      background: white;
+      border-left: 3px solid #4285f4;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 DataLayer Visualizer Demo</h1>
+  <p>This page demonstrates the DataLayer Visualizer Chrome extension. Open Chrome DevTools and navigate to the <strong>DataLayer</strong> tab to see the events.</p>
+  
+  <div class="button-group">
+    <h3>Test DataLayer Events:</h3>
+    <button onclick="pushPageView()">Push Page View</button>
+    <button onclick="pushPurchase()">Push Purchase Event</button>
+    <button onclick="pushUserInfo()">Push User Info</button>
+    <button onclick="pushCustomEvent()">Push Custom Event</button>
+    <button onclick="pushGTMEvent()">Push GTM Event</button>
+    <button onclick="triggerMultipleEvents()">Trigger Multiple Events</button>
+  </div>
+  
+  <div class="log" id="log">
+    <div><strong>Event Log:</strong></div>
+  </div>
+  
+  <script>
+    // Initialize dataLayer
+    window.dataLayer = window.dataLayer || [];
+    
+    // GTM snippet simulation (for testing GTM detection)
+    window.google_tag_manager = window.google_tag_manager || {};
+    window.google_tag_manager['GTM-DEMO123'] = {
+      dataLayer: window.dataLayer
+    };
+    
+    function log(message) {
+      const logDiv = document.getElementById('log');
+      const entry = document.createElement('div');
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logDiv.appendChild(entry);
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    function pushPageView() {
+      const event = {
+        event: 'page_view',
+        page_title: 'Demo Page',
+        page_location: window.location.href,
+        page_path: window.location.pathname,
+        measurement_id: 'G-DEMO12345'
+      };
+      window.dataLayer.push(event);
+      log('Pushed: page_view event');
+    }
+    
+    function pushPurchase() {
+      const event = {
+        event: 'purchase',
+        ecommerce: {
+          transaction_id: 'T_' + Date.now(),
+          value: 99.99,
+          currency: 'USD',
+          items: [
+            {
+              item_id: 'SKU_12345',
+              item_name: 'Demo Product',
+              price: 99.99,
+              quantity: 1
+            }
+          ]
+        }
+      };
+      window.dataLayer.push(event);
+      log('Pushed: purchase event with ecommerce data');
+    }
+    
+    function pushUserInfo() {
+      const event = {
+        event: 'user_data',
+        user_id: 'user_' + Math.random().toString(36).substr(2, 9),
+        user_properties: {
+          account_type: 'premium',
+          member_since: '2024-01-01',
+          preferences: {
+            theme: 'dark',
+            notifications: true
+          }
+        }
+      };
+      window.dataLayer.push(event);
+      log('Pushed: user_data event');
+    }
+    
+    function pushCustomEvent() {
+      const event = {
+        event: 'custom_interaction',
+        category: 'Demo',
+        action: 'Button Click',
+        label: 'Test Button',
+        value: Math.floor(Math.random() * 100),
+        timestamp: Date.now(),
+        metadata: {
+          browser: navigator.userAgent.split(' ').pop(),
+          screen: `${screen.width}x${screen.height}`
+        }
+      };
+      window.dataLayer.push(event);
+      log('Pushed: custom_interaction event');
+    }
+    
+    function pushGTMEvent() {
+      const event = {
+        event: 'gtm.js',
+        'gtm.start': Date.now(),
+        'gtm.uniqueEventId': Math.floor(Math.random() * 1000000)
+      };
+      window.dataLayer.push(event);
+      log('Pushed: gtm.js event');
+    }
+    
+    function triggerMultipleEvents() {
+      log('Triggering multiple events...');
+      setTimeout(() => pushPageView(), 100);
+      setTimeout(() => pushUserInfo(), 300);
+      setTimeout(() => pushCustomEvent(), 500);
+      setTimeout(() => {
+        log('Multiple events triggered!');
+      }, 700);
+    }
+    
+    // Push initial event on load
+    window.addEventListener('load', () => {
+      window.dataLayer.push({
+        event: 'page_loaded',
+        timestamp: Date.now()
+      });
+      log('Page loaded - initial event pushed');
+    });
+    
+    // Simulate GTM initialization
+    window.dataLayer.push({
+      'gtm.start': Date.now(),
+      event: 'gtm.js'
+    });
+    log('GTM simulation initialized');
+  </script>
+</body>
+</html>
