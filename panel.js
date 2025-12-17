@@ -355,7 +355,7 @@
       html += `<div class="json-content" id="${id}">`;
       
       obj.forEach((item, index) => {
-        const itemHtml = syntaxHighlightJson(item, depth + 1);
+        const itemHtml = syntaxHighlightJson(item, depth + 1, false);
         const comma = index < obj.length - 1 ? ',' : '';
         html += `<div>${nextIndent}${itemHtml}${comma}</div>`;
       });
@@ -383,7 +383,7 @@
       keys.forEach((key, index) => {
         const value = obj[key];
         const comma = index < keys.length - 1 ? ',' : '';
-        html += `<div>${nextIndent}<span class="json-key">"${escapeHtml(key)}"</span>: ${syntaxHighlightJson(value, depth + 1)}${comma}</div>`;
+        html += `<div>${nextIndent}<span class="json-key">"${escapeHtml(key)}"</span>: ${syntaxHighlightJson(value, depth + 1, false)}${comma}</div>`;
       });
       
       html += `</div>`;
