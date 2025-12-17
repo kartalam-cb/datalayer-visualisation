@@ -16,9 +16,18 @@
   
   // Generate a fingerprint for an event to detect duplicates
   function generateEventFingerprint(event) {
-    const content = JSON.stringify(event);
-    const timeWindow = Math.floor(Date.now() / 100); // 100ms windows
-    return `${content}_${timeWindow}`;
+    try {
+      const content = JSON.stringify(event);
+      const timeWindow = Math.floor(Date.now() / 100); // 100ms windows
+      return `${content}_${timeWindow}`;
+    } catch (e) {
+      // Handle circular references or other JSON.stringify errors
+      // Use a fallback fingerprint based on object properties
+      console.warn('DataLayer Visualizer: Error creating fingerprint, using fallback', e);
+      const fallback = Object.keys(event || {}).sort().join(',');
+      const timeWindow = Math.floor(Date.now() / 100);
+      return `${fallback}_${timeWindow}`;
+    }
   }
   
   // Function to send events to content script
