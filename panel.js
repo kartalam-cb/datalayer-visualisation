@@ -347,9 +347,11 @@
       }
       
       const id = 'collapse-' + Math.random().toString(36).substring(2, 11);
+      const itemCount = obj.length;
       let html = `<div class="json-line">`;
       html += `<span class="json-toggle" data-target="${id}">▼</span>`;
       html += `<span class="json-bracket">[</span>`;
+      html += `<span class="json-preview" data-target="${id}"> // ${itemCount} item${itemCount !== 1 ? 's' : ''}</span>`;
       html += `<div class="json-content" id="${id}">`;
       
       obj.forEach((item, index) => {
@@ -369,9 +371,11 @@
       }
       
       const id = 'collapse-' + Math.random().toString(36).substring(2, 11);
+      const keyCount = keys.length;
       let html = `<div class="json-line">`;
       html += `<span class="json-toggle" data-target="${id}">▼</span>`;
       html += `<span class="json-bracket">{</span>`;
+      html += `<span class="json-preview" data-target="${id}"> // ${keyCount} key${keyCount !== 1 ? 's' : ''}</span>`;
       html += `<div class="json-content" id="${id}">`;
       
       keys.forEach((key, index) => {
@@ -394,9 +398,17 @@
       toggle.addEventListener('click', function() {
         const targetId = this.getAttribute('data-target');
         const target = document.getElementById(targetId);
+        const preview = detailsContent.querySelector(`.json-preview[data-target="${targetId}"]`);
+        
         if (target) {
+          const isCollapsed = target.classList.contains('collapsed');
           target.classList.toggle('collapsed');
-          this.textContent = target.classList.contains('collapsed') ? '▶' : '▼';
+          this.classList.toggle('collapsed');
+          
+          // Show/hide preview text
+          if (preview) {
+            preview.style.display = isCollapsed ? 'none' : 'inline';
+          }
         }
       });
     });
@@ -405,6 +417,7 @@
   function toggleAllJson(collapse) {
     const contents = detailsContent.querySelectorAll('.json-content');
     const toggles = detailsContent.querySelectorAll('.json-toggle');
+    const previews = detailsContent.querySelectorAll('.json-preview');
     
     contents.forEach(content => {
       if (collapse) {
@@ -415,7 +428,15 @@
     });
     
     toggles.forEach(toggle => {
-      toggle.textContent = collapse ? '▶' : '▼';
+      if (collapse) {
+        toggle.classList.add('collapsed');
+      } else {
+        toggle.classList.remove('collapsed');
+      }
+    });
+    
+    previews.forEach(preview => {
+      preview.style.display = collapse ? 'inline' : 'none';
     });
   }
   
