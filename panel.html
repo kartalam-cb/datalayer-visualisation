@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataLayer Visualizer</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="gtm-status" id="gtmStatus">
+          <span class="status-indicator"></span>
+          <span class="status-text">GTM Preview: Inactive</span>
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <button id="ga4DebugViewBtn" class="btn btn-primary" title="Open GA4 DebugView">
+          <span>📊</span> GA4 DebugView
+        </button>
+        <button id="persistToggle" class="btn btn-secondary" title="Toggle persistence across navigation">
+          <span id="persistIcon">💾</span> Persist
+        </button>
+        <button id="clearAllBtn" class="btn btn-danger" title="Clear all events">
+          <span>🗑️</span> Clear All
+        </button>
+      </div>
+    </div>
+    
+    <!-- Main content area -->
+    <div class="main-container">
+      <!-- Left column: Event list -->
+      <div class="events-panel" id="eventsPanel">
+        <div class="panel-header">
+          <h3>Events (<span id="eventCount">0</span>)</h3>
+        </div>
+        <div class="events-list" id="eventsList">
+          <!-- Events will be dynamically added here -->
+        </div>
+      </div>
+      
+      <!-- Resizable divider -->
+      <div class="divider" id="divider"></div>
+      
+      <!-- Right column: Event details -->
+      <div class="details-panel" id="detailsPanel">
+        <div class="panel-header">
+          <h3>Event Details</h3>
+          <div class="detail-actions">
+            <button id="copyJsonBtn" class="btn-icon" title="Copy JSON">📋</button>
+            <button id="expandAllBtn" class="btn-icon" title="Expand all">⬇️</button>
+            <button id="collapseAllBtn" class="btn-icon" title="Collapse all">⬆️</button>
+          </div>
+        </div>
+        <div class="details-content" id="detailsContent">
+          <div class="placeholder">
+            <span>👈 Select an event to view details</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <span class="close" id="closeSettings">&times;</span>
+        </div>
+        <div class="modal-body">
+          <label for="ga4PropertyId">GA4 Property ID:</label>
+          <input type="text" id="ga4PropertyId" placeholder="G-XXXXXXXXXX" />
+          <p class="help-text">Enter your GA4 Measurement ID to enable quick access to DebugView</p>
+        </div>
+        <div class="modal-footer">
+          <button id="saveSettings" class="btn btn-primary">Save</button>
+          <button id="cancelSettings" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="panel.js"></script>
+</body>
+</html>
