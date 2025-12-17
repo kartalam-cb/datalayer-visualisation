@@ -601,15 +601,16 @@
     textarea.focus();
     textarea.select();
     
+    let success = false;
     try {
-      document.execCommand('copy');
-      return true;
+      success = document.execCommand('copy');
     } catch (err) {
       console.error('Copy failed:', err);
-      return false;
     } finally {
       document.body.removeChild(textarea);
     }
+    
+    return success;
   }
   
   function copySelectedEventJson() {
