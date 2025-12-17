@@ -348,19 +348,21 @@
       
       const id = 'collapse-' + Math.random().toString(36).substring(2, 11);
       const itemCount = obj.length;
-      let html = `<div class="json-line">`;
+      let html = isRoot ? `<div class="json-line">` : '';
       html += `<span class="json-toggle" data-target="${id}">▼</span>`;
       html += `<span class="json-bracket">[</span>`;
       html += `<span class="json-preview" data-target="${id}"> // ${itemCount} item${itemCount !== 1 ? 's' : ''}</span>`;
       html += `<div class="json-content" id="${id}">`;
       
       obj.forEach((item, index) => {
-        html += `<div>${nextIndent}${syntaxHighlightJson(item, depth + 1)}${index < obj.length - 1 ? ',' : ''}</div>`;
+        const itemHtml = syntaxHighlightJson(item, depth + 1, false);
+        const comma = index < obj.length - 1 ? ',' : '';
+        html += `<div>${nextIndent}${itemHtml}${comma}</div>`;
       });
       
       html += `</div>`;
       html += `<div>${indent}<span class="json-bracket">]</span></div>`;
-      html += `</div>`;
+      html += isRoot ? `</div>` : '';
       return html;
     }
     
@@ -372,7 +374,7 @@
       
       const id = 'collapse-' + Math.random().toString(36).substring(2, 11);
       const keyCount = keys.length;
-      let html = `<div class="json-line">`;
+      let html = isRoot ? `<div class="json-line">` : '';
       html += `<span class="json-toggle" data-target="${id}">▼</span>`;
       html += `<span class="json-bracket">{</span>`;
       html += `<span class="json-preview" data-target="${id}"> // ${keyCount} key${keyCount !== 1 ? 's' : ''}</span>`;
@@ -380,12 +382,13 @@
       
       keys.forEach((key, index) => {
         const value = obj[key];
-        html += `<div>${nextIndent}<span class="json-key">"${escapeHtml(key)}"</span>: ${syntaxHighlightJson(value, depth + 1)}${index < keys.length - 1 ? ',' : ''}</div>`;
+        const comma = index < keys.length - 1 ? ',' : '';
+        html += `<div>${nextIndent}<span class="json-key">"${escapeHtml(key)}"</span>: ${syntaxHighlightJson(value, depth + 1, false)}${comma}</div>`;
       });
       
       html += `</div>`;
       html += `<div>${indent}<span class="json-bracket">}</span></div>`;
-      html += `</div>`;
+      html += isRoot ? `</div>` : '';
       return html;
     }
     
