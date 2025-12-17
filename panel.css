@@ -11,20 +11,22 @@
   --danger-color: #ea4335;
   --warning-color: #fbbc04;
   --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
+  --bg-secondary: #f1f5f9;
   --bg-hover: #e8f0fe;
   --bg-selected: #d2e3fc;
+  --bg-toolbar: #e2e8f0;
+  --bg-events-panel: #f8fafc;
   --border-color: #dadce0;
   --text-primary: #202124;
   --text-secondary: #5f6368;
   --text-tertiary: #80868b;
   
   /* JSON Syntax highlighting colors */
-  --json-key: #881280;
-  --json-string: #1a1aa6;
-  --json-number: #164;
-  --json-boolean: #219;
-  --json-null: #708;
+  --json-key: #2563eb;
+  --json-string: #16a34a;
+  --json-number: #ea580c;
+  --json-boolean: #9333ea;
+  --json-null: #6b7280;
   --json-bracket: #444;
 }
 
@@ -49,7 +51,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: var(--bg-secondary);
+  background: var(--bg-toolbar);
   border-bottom: 1px solid var(--border-color);
   min-height: 44px;
 }
@@ -156,8 +158,8 @@ body {
   flex-direction: column;
   width: 30%;
   min-width: 200px;
-  background: var(--bg-primary);
-  border-right: 1px solid var(--border-color);
+  background: var(--bg-events-panel);
+  border-right: 2px solid var(--border-color);
 }
 
 .panel-header {
@@ -282,17 +284,16 @@ body {
 
 /* Divider */
 .divider {
-  width: 5px;
-  background: var(--bg-secondary);
+  width: 4px;
+  background: var(--border-color);
   cursor: col-resize;
   position: relative;
-  border-left: 1px solid var(--border-color);
-  border-right: 1px solid var(--border-color);
   user-select: none;
 }
 
 .divider:hover {
-  background: var(--border-color);
+  background: var(--primary-color);
+  opacity: 0.5;
 }
 
 .divider.dragging {
@@ -370,6 +371,11 @@ body {
   padding-left: 20px;
 }
 
+.json-line:hover {
+  background: rgba(37, 99, 235, 0.05);
+  border-radius: 2px;
+}
+
 .json-toggle {
   position: absolute;
   left: 0;
@@ -379,17 +385,35 @@ body {
   font-size: 10px;
   width: 16px;
   text-align: center;
+  transition: transform 0.2s ease, color 0.2s ease;
+  display: inline-block;
 }
 
 .json-toggle:hover {
   color: var(--primary-color);
 }
 
+.json-toggle.collapsed {
+  transform: rotate(-90deg);
+}
+
 .json-content {
   margin-left: 16px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+  max-height: 2000px;
+  opacity: 1;
 }
 
 .json-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.json-preview {
+  color: var(--text-tertiary);
+  font-style: italic;
+  margin-left: 4px;
   display: none;
 }
 
