@@ -401,13 +401,21 @@
         const preview = detailsContent.querySelector(`.json-preview[data-target="${targetId}"]`);
         
         if (target) {
-          const isCollapsed = target.classList.contains('collapsed');
+          // Toggle the collapsed state
           target.classList.toggle('collapsed');
-          this.classList.toggle('collapsed');
+          // After toggle, check if content is now collapsed
+          const isNowCollapsed = target.classList.contains('collapsed');
           
-          // Show/hide preview text
+          // Sync chevron rotation with collapse state - when content is collapsed, chevron should be rotated
+          if (isNowCollapsed) {
+            this.classList.add('collapsed');
+          } else {
+            this.classList.remove('collapsed');
+          }
+          
+          // Show preview when collapsed, hide when expanded
           if (preview) {
-            preview.style.display = isCollapsed ? 'none' : 'inline';
+            preview.style.display = isNowCollapsed ? 'inline' : 'none';
           }
         }
       });
