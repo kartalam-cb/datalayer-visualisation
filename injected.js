@@ -22,17 +22,41 @@
   // Generate a fingerprint for an event to detect duplicates
   function generateEventFingerprint(event) {
     try {
-      const content = JSON.stringify(event);
+      // Sort object keys recursively to ensure consistent stringification
+      const sortedEvent = sortObjectKeys(event);
+      const content = JSON.stringify(sortedEvent);
       const timeWindow = Math.floor(Date.now() / TIME_WINDOW_MS);
       return `${content}_${timeWindow}`;
     } catch (e) {
       // Handle circular references or other JSON.stringify errors
-      // Use a fallback fingerprint based on object properties
+      // Use a fallback fingerprint that includes both keys and a hash of values
       console.warn('DataLayer Visualizer: Error creating fingerprint, using fallback', e);
-      const fallback = Object.keys(event || {}).sort().join(',');
+      const keys = Object.keys(event || {}).sort();
+      const valueHash = keys.map(k => {
+        try {
+          return typeof event[k] === 'object' ? Object.keys(event[k] || {}).length : String(event[k]);
+        } catch {
+          return 'unknown';
+        }
+      }).join('|');
       const timeWindow = Math.floor(Date.now() / TIME_WINDOW_MS);
-      return `${fallback}_${timeWindow}`;
+      return `${keys.join(',')}_${valueHash}_${timeWindow}`;
     }
+  }
+  
+  // Recursively sort object keys for consistent stringification
+  function sortObjectKeys(obj) {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(sortObjectKeys);
+    }
+    const sorted = {};
+    Object.keys(obj).sort().forEach(key => {
+      sorted[key] = sortObjectKeys(obj[key]);
+    });
+    return sorted;
   }
   
   // Function to send events to content script
@@ -49,14 +73,18 @@
     
     // Clean up old fingerprints periodically to prevent memory bloat
     if (seenEvents.size > MAX_FINGERPRINTS) {
-      // Use iterator for efficient deletion of oldest entries (Sets maintain insertion order)
+      // Collect oldest entries first, then delete them
+      // Sets maintain insertion order, so first N entries are oldest
+      const toDelete = [];
       const iterator = seenEvents.values();
       for (let i = 0; i < CLEANUP_COUNT; i++) {
         const value = iterator.next().value;
         if (value !== undefined) {
-          seenEvents.delete(value);
+          toDelete.push(value);
         }
       }
+      // Delete collected entries
+      toDelete.forEach(fp => seenEvents.delete(fp));
       console.log('DataLayer Visualizer: Cleaned up old fingerprints');
     }
     
