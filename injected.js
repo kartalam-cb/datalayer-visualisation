@@ -14,18 +14,23 @@
   // Track seen events to prevent duplicates
   const seenEvents = new Set();
   
+  // Constants for deduplication
+  const TIME_WINDOW_MS = 100; // Time window for fingerprinting (milliseconds)
+  const MAX_FINGERPRINTS = 1000; // Maximum fingerprints to keep in memory
+  const CLEANUP_COUNT = 500; // Number of fingerprints to remove during cleanup
+  
   // Generate a fingerprint for an event to detect duplicates
   function generateEventFingerprint(event) {
     try {
       const content = JSON.stringify(event);
-      const timeWindow = Math.floor(Date.now() / 100); // 100ms windows
+      const timeWindow = Math.floor(Date.now() / TIME_WINDOW_MS);
       return `${content}_${timeWindow}`;
     } catch (e) {
       // Handle circular references or other JSON.stringify errors
       // Use a fallback fingerprint based on object properties
       console.warn('DataLayer Visualizer: Error creating fingerprint, using fallback', e);
       const fallback = Object.keys(event || {}).sort().join(',');
-      const timeWindow = Math.floor(Date.now() / 100);
+      const timeWindow = Math.floor(Date.now() / TIME_WINDOW_MS);
       return `${fallback}_${timeWindow}`;
     }
   }
@@ -43,9 +48,15 @@
     seenEvents.add(fingerprint);
     
     // Clean up old fingerprints periodically to prevent memory bloat
-    if (seenEvents.size > 1000) {
-      const entries = Array.from(seenEvents);
-      entries.slice(0, 500).forEach(e => seenEvents.delete(e));
+    if (seenEvents.size > MAX_FINGERPRINTS) {
+      // Use iterator for efficient deletion of oldest entries (Sets maintain insertion order)
+      const iterator = seenEvents.values();
+      for (let i = 0; i < CLEANUP_COUNT; i++) {
+        const value = iterator.next().value;
+        if (value !== undefined) {
+          seenEvents.delete(value);
+        }
+      }
       console.log('DataLayer Visualizer: Cleaned up old fingerprints');
     }
     
