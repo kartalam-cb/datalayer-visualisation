@@ -4,14 +4,42 @@
   
   // Check if already injected
   if (window.__DATALAYER_VISUALIZER_INJECTED__) {
+    console.log('DataLayer Visualizer: Already injected, skipping');
     return;
   }
   window.__DATALAYER_VISUALIZER_INJECTED__ = true;
   
   let eventIndex = 0;
   
+  // Track seen events to prevent duplicates
+  const seenEvents = new Set();
+  
+  // Generate a fingerprint for an event to detect duplicates
+  function generateEventFingerprint(event) {
+    const content = JSON.stringify(event);
+    const timeWindow = Math.floor(Date.now() / 100); // 100ms windows
+    return `${content}_${timeWindow}`;
+  }
+  
   // Function to send events to content script
   function sendDataLayerEvent(event, originalPush) {
+    // Generate fingerprint for deduplication
+    const fingerprint = generateEventFingerprint(event);
+    
+    // Skip if we've seen this exact event recently
+    if (seenEvents.has(fingerprint)) {
+      console.log('DataLayer Visualizer: Skipping duplicate event', event);
+      return;
+    }
+    seenEvents.add(fingerprint);
+    
+    // Clean up old fingerprints periodically to prevent memory bloat
+    if (seenEvents.size > 1000) {
+      const entries = Array.from(seenEvents);
+      entries.slice(0, 500).forEach(e => seenEvents.delete(e));
+      console.log('DataLayer Visualizer: Cleaned up old fingerprints');
+    }
+    
     const eventData = {
       index: eventIndex++,
       timestamp: Date.now(),
