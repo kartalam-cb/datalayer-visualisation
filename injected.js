@@ -73,17 +73,9 @@
     
     // Clean up old fingerprints periodically to prevent memory bloat
     if (seenEvents.size > MAX_FINGERPRINTS) {
-      // Collect oldest entries first, then delete them
       // Sets maintain insertion order, so first N entries are oldest
-      const toDelete = [];
-      const iterator = seenEvents.values();
-      for (let i = 0; i < CLEANUP_COUNT; i++) {
-        const value = iterator.next().value;
-        if (value !== undefined) {
-          toDelete.push(value);
-        }
-      }
-      // Delete collected entries
+      // Get oldest entries and delete them
+      const toDelete = Array.from(seenEvents).slice(0, CLEANUP_COUNT);
       toDelete.forEach(fp => seenEvents.delete(fp));
       console.log('DataLayer Visualizer: Cleaned up old fingerprints');
     }
