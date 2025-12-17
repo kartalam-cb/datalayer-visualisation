@@ -591,19 +591,40 @@
     };
   }
   
+  function copyToClipboard(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    
+    try {
+      document.execCommand('copy');
+      return true;
+    } catch (err) {
+      console.error('Copy failed:', err);
+      return false;
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  }
+  
   function copySelectedEventJson() {
     if (selectedEventIndex === null) return;
     
     const event = events[selectedEventIndex];
     if (event && !event.isNavigationMarker) {
       const json = JSON.stringify(event.data, null, 2);
-      navigator.clipboard.writeText(json).then(() => {
+      if (copyToClipboard(json)) {
         // Show feedback
         copyJsonBtn.textContent = '✅';
         setTimeout(() => {
           copyJsonBtn.textContent = '📋';
-        }, 1000);
-      });
+        }, 1500);
+      }
     }
   }
   
