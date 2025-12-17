@@ -517,6 +517,11 @@
   
   function refreshDataLayer() {
     const refreshIcon = document.querySelector('.refresh-icon');
+    if (!refreshIcon) {
+      console.error('Refresh icon not found');
+      return;
+    }
+    
     refreshIcon.classList.add('spinning');
     
     // Send message to background to re-inject and fetch dataLayer
@@ -528,9 +533,16 @@
         }, (response) => {
           // Stop spinning after response or timeout
           setTimeout(() => {
-            refreshIcon.classList.remove('spinning');
+            if (refreshIcon) {
+              refreshIcon.classList.remove('spinning');
+            }
           }, 1000);
         });
+      } else {
+        // No active tab, remove spinning immediately
+        if (refreshIcon) {
+          refreshIcon.classList.remove('spinning');
+        }
       }
     });
   }
