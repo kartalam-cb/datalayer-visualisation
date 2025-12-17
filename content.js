@@ -26,5 +26,15 @@
     }
   });
   
+  // Listen for refresh requests from background script
+  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    if (message.type === 'REFRESH_DATALAYER_REQUEST') {
+      // Forward to injected script via postMessage
+      window.postMessage({ type: 'REFRESH_DATALAYER' }, '*');
+      sendResponse({ success: true });
+    }
+    return true;
+  });
+  
   console.log('DataLayer Visualizer: Content script loaded');
 })();
