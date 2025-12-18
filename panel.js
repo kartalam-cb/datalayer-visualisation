@@ -132,23 +132,24 @@
   function initTheme() {
     const savedTheme = localStorage.getItem(THEME_KEY);
     
-    if (savedTheme) {
+    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
       // User has a saved preference
       applyTheme(savedTheme);
     } else {
       // Auto-detect from DevTools
-      const devToolsTheme = chrome.devtools?.panels?.themeName || 'default';
+      const devToolsTheme = chrome.devtools?.panels?.themeName;
       applyTheme(devToolsTheme === 'dark' ? 'dark' : 'light');
     }
   }
   
   function applyTheme(theme) {
+    const themeIcon = themeToggle.querySelector('.theme-icon');
     if (theme === 'dark') {
       document.body.classList.add('dark');
-      themeToggle.querySelector('.theme-icon').textContent = '☀️';
+      themeIcon.textContent = '☀️';
     } else {
       document.body.classList.remove('dark');
-      themeToggle.querySelector('.theme-icon').textContent = '🌙';
+      themeIcon.textContent = '🌙';
     }
   }
   
