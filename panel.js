@@ -559,7 +559,7 @@
     }
   }
   
-  function clearAllEvents() {
+  function clearEventsUI() {
     events = [];
     networkRequests.clear();
     selectedEventIndex = null;
@@ -567,6 +567,10 @@
     if (detailsContent) {
       detailsContent.innerHTML = '<div class="placeholder"><span>👈 Select an event to view details</span></div>';
     }
+  }
+  
+  function clearAllEvents() {
+    clearEventsUI();
     
     // Clear persisted events
     chrome.storage.session.remove(['persistedEvents']);
@@ -592,13 +596,7 @@
     refreshIcon.classList.add('spinning');
     
     // Clear existing events before refresh
-    events = [];
-    networkRequests.clear();
-    selectedEventIndex = null;
-    renderEventsList();
-    if (detailsContent) {
-      detailsContent.innerHTML = '<div class="placeholder"><span>👈 Select an event to view details</span></div>';
-    }
+    clearEventsUI();
     
     // Send message to background to re-inject and fetch dataLayer
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
