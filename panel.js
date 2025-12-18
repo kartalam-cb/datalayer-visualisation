@@ -16,6 +16,7 @@
   const eventCount = document.getElementById('eventCount');
   const gtmStatus = document.getElementById('gtmStatus');
   const clearAllBtn = document.getElementById('clearAllBtn');
+  const refreshBtn = document.getElementById('refreshBtn');
   const persistToggle = document.getElementById('persistToggle');
   const ga4DebugViewBtn = document.getElementById('ga4DebugViewBtn');
   const divider = document.getElementById('divider');
@@ -90,6 +91,9 @@
   function setupEventListeners() {
     // Clear all button
     clearAllBtn.addEventListener('click', clearAllEvents);
+    
+    // Refresh button
+    refreshBtn.addEventListener('click', refreshDataLayer);
     
     // Persist toggle
     persistToggle.addEventListener('click', togglePersist);
@@ -507,6 +511,38 @@
           type: 'CLEAR_TAB_DATA',
           tabId: tabs[0].id
         });
+      }
+    });
+  }
+  
+  function refreshDataLayer() {
+    const refreshIcon = document.querySelector('.refresh-icon');
+    if (!refreshIcon) {
+      console.error('Refresh icon not found');
+      return;
+    }
+    
+    refreshIcon.classList.add('spinning');
+    
+    // Send message to background to re-inject and fetch dataLayer
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+      if (tabs[0]) {
+        chrome.runtime.sendMessage({
+          action: 'refreshDataLayer',
+          tabId: tabs[0].id
+        }, (response) => {
+          // Stop spinning after response or timeout
+          setTimeout(() => {
+            if (refreshIcon) {
+              refreshIcon.classList.remove('spinning');
+            }
+          }, 1000);
+        });
+      } else {
+        // No active tab, remove spinning immediately
+        if (refreshIcon) {
+          refreshIcon.classList.remove('spinning');
+        }
       }
     });
   }

@@ -199,5 +199,21 @@
     });
   }
   
+  // Listen for refresh requests
+  window.addEventListener('message', function(event) {
+    // Only accept messages from same window
+    if (event.source !== window) return;
+    
+    if (event.data.type === 'REFRESH_DATALAYER') {
+      // Re-scan window.dataLayer and send all events
+      if (window.dataLayer && Array.isArray(window.dataLayer)) {
+        console.log('DataLayer Visualizer: Refreshing dataLayer, found', window.dataLayer.length, 'events');
+        window.dataLayer.forEach((event) => {
+          sendDataLayerEvent(event, false);
+        });
+      }
+    }
+  });
+  
   console.log('DataLayer Visualizer: Monitoring active');
 })();
