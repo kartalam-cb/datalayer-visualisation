@@ -208,6 +208,7 @@ body {
   padding: 8px 12px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .panel-header h3 {
@@ -350,11 +351,13 @@ body {
 
 .details-content {
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 12px;
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 12px;
   line-height: 1.5;
+  min-height: 0;
 }
 
 .placeholder {
