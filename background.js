@@ -139,6 +139,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const tabId = message.tabId;
     tabData.delete(tabId);
     sendResponse({ success: true });
+  } else if (message.action === 'refreshDataLayer') {
+    // Re-inject content script to re-establish monitoring
+    const tabId = message.tabId;
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      files: ['content.js']
+    }).then(() => {
+      // Send refresh message to the page
+      chrome.tabs.sendMessage(tabId, { type: 'REFRESH_DATALAYER_REQUEST' })
+        .catch(() => {
+          // Tab might not be ready yet, that's okay
+        });
+      sendResponse({ success: true });
+    }).catch((err) => {
+      console.error('Error re-injecting content script:', err);
+      sendResponse({ success: false, error: err.message });
+    });
+    return true; // Keep message channel open for async response
   }
   
   return true;

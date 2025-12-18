@@ -90,6 +90,21 @@ body {
   50% { opacity: 0.5; }
 }
 
+/* Refresh button styles */
+.refresh-icon {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.refresh-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
