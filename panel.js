@@ -369,7 +369,7 @@
     if (type === 'object') {
       const keys = Object.keys(obj);
       if (keys.length === 0) {
-        return `<span class="json-bracket">{${trailingComma}}</span>`;
+        return `<span class="json-bracket">{}${trailingComma}</span>`;
       }
       
       const id = 'collapse-' + Math.random().toString(36).substring(2, 11);
