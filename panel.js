@@ -23,11 +23,16 @@
   const copyJsonBtn = document.getElementById('copyJsonBtn');
   const expandAllBtn = document.getElementById('expandAllBtn');
   const collapseAllBtn = document.getElementById('collapseAllBtn');
+  const themeToggle = document.getElementById('themeToggle');
+  
+  // Theme management
+  const THEME_KEY = 'datalayer-visualizer-theme';
   
   // Initialize
   init();
   
   function init() {
+    initTheme();
     loadSettings();
     setupEventListeners();
     loadPersistedEvents();
@@ -119,6 +124,39 @@
         clearAllEvents();
       }
     });
+    
+    // Theme toggle button
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+  
+  function initTheme() {
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    
+    if (savedTheme) {
+      // User has a saved preference
+      applyTheme(savedTheme);
+    } else {
+      // Auto-detect from DevTools
+      const devToolsTheme = chrome.devtools?.panels?.themeName || 'default';
+      applyTheme(devToolsTheme === 'dark' ? 'dark' : 'light');
+    }
+  }
+  
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.body.classList.add('dark');
+      themeToggle.querySelector('.theme-icon').textContent = '☀️';
+    } else {
+      document.body.classList.remove('dark');
+      themeToggle.querySelector('.theme-icon').textContent = '🌙';
+    }
+  }
+  
+  function toggleTheme() {
+    const isDark = document.body.classList.contains('dark');
+    const newTheme = isDark ? 'light' : 'dark';
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
   }
   
   function connectToBackgroundScript() {
