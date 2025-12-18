@@ -249,15 +249,17 @@
     eventsList.innerHTML = '';
     eventCount.textContent = events.length;
     
-    events.forEach((event, index) => {
+    // Render events in reverse order (most recent first)
+    for (let i = events.length - 1; i >= 0; i--) {
+      const event = events[i];
       if (event.isNavigationMarker) {
-        const markerEl = createNavigationMarker(event, index);
+        const markerEl = createNavigationMarker(event, i);
         eventsList.appendChild(markerEl);
       } else {
-        const eventEl = createEventElement(event, index);
+        const eventEl = createEventElement(event, i);
         eventsList.appendChild(eventEl);
       }
-    });
+    }
   }
   
   function createNavigationMarker(marker, index) {
@@ -557,7 +559,7 @@
     }
   }
   
-  function clearAllEvents() {
+  function clearEventsUI() {
     events = [];
     networkRequests.clear();
     selectedEventIndex = null;
@@ -565,6 +567,10 @@
     if (detailsContent) {
       detailsContent.innerHTML = '<div class="placeholder"><span>👈 Select an event to view details</span></div>';
     }
+  }
+  
+  function clearAllEvents() {
+    clearEventsUI();
     
     // Clear persisted events
     chrome.storage.session.remove(['persistedEvents']);
@@ -588,6 +594,9 @@
     }
     
     refreshIcon.classList.add('spinning');
+    
+    // Clear existing events before refresh
+    clearEventsUI();
     
     // Send message to background to re-inject and fetch dataLayer
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
