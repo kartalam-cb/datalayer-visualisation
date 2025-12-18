@@ -58,7 +58,7 @@ This document provides a comprehensive testing checklist for verifying all featu
 ### 2. Column View Layout
 
 **Left Column (Events List):**
-- [ ] Events appear in chronological order
+- [ ] Events appear in reverse chronological order (most recent at top)
 - [ ] Event name is displayed clearly (e.g., "page_view", "purchase")
 - [ ] Timestamp shows HH:MM:SS.mmm format
 - [ ] Index number (#0, #1, #2...) is visible
@@ -251,7 +251,35 @@ This document provides a comprehensive testing checklist for verifying all featu
 
 ---
 
-### 8. Clear All Functionality
+### 8. Refresh Functionality
+
+**Refresh Button:**
+- [ ] "🔄 Refresh" button is visible in toolbar
+- [ ] Button has spinning icon animation
+- [ ] Button is clickable
+
+**Refreshing Events:**
+- [ ] Push several events (e.g., 3-4 events)
+- [ ] Note the event count and list
+- [ ] Click "Refresh" button
+- [ ] Refresh icon spins during the operation
+- [ ] Events are cleared and reloaded from page's dataLayer
+- [ ] No duplicate events appear in the list
+- [ ] Event count matches actual dataLayer length
+- [ ] Most recent event appears at the top
+
+**Event Order After Refresh:**
+- [ ] Push event A (first)
+- [ ] Push event B (second)
+- [ ] Push event C (third - most recent)
+- [ ] Click "Refresh"
+- [ ] Event C appears at the top
+- [ ] Event B appears in the middle
+- [ ] Event A appears at the bottom (oldest)
+
+---
+
+### 9. Clear All Functionality
 
 **Clear Button:**
 - [ ] "🗑️ Clear All" button is visible in toolbar
@@ -275,7 +303,7 @@ This document provides a comprehensive testing checklist for verifying all featu
 
 ---
 
-### 9. Copy JSON Functionality
+### 10. Copy JSON Functionality
 
 **Copy Button:**
 - [ ] Copy button (📋) is visible when event is selected
@@ -293,7 +321,7 @@ This document provides a comprehensive testing checklist for verifying all featu
 
 ---
 
-### 10. Multi-Event Testing
+### 11. Multi-Event Testing
 
 **Rapid Events:**
 - [ ] Click "Trigger Multiple Events" on demo.html
