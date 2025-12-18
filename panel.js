@@ -16,6 +16,7 @@
   const eventCount = document.getElementById('eventCount');
   const gtmStatus = document.getElementById('gtmStatus');
   const clearAllBtn = document.getElementById('clearAllBtn');
+  const refreshBtn = document.getElementById('refreshBtn');
   const persistToggle = document.getElementById('persistToggle');
   const ga4DebugViewBtn = document.getElementById('ga4DebugViewBtn');
   const divider = document.getElementById('divider');
@@ -95,6 +96,9 @@
   function setupEventListeners() {
     // Clear all button
     clearAllBtn.addEventListener('click', clearAllEvents);
+    
+    // Refresh button
+    refreshBtn.addEventListener('click', refreshDataLayer);
     
     // Persist toggle
     persistToggle.addEventListener('click', togglePersist);
@@ -354,35 +358,35 @@
     setupJsonToggles();
   }
   
-  function syntaxHighlightJson(obj, depth = 0, isRoot = false) {
+  function syntaxHighlightJson(obj, depth = 0, isRoot = false, trailingComma = '') {
     const indent = '  '.repeat(depth);
     const nextIndent = '  '.repeat(depth + 1);
     
     if (obj === null) {
-      return `<span class="json-null">null</span>`;
+      return `<span class="json-null">null</span>${trailingComma}`;
     }
     
     if (obj === undefined) {
-      return `<span class="json-null">undefined</span>`;
+      return `<span class="json-null">undefined</span>${trailingComma}`;
     }
     
     const type = typeof obj;
     
     if (type === 'boolean') {
-      return `<span class="json-boolean">${obj}</span>`;
+      return `<span class="json-boolean">${obj}</span>${trailingComma}`;
     }
     
     if (type === 'number') {
-      return `<span class="json-number">${obj}</span>`;
+      return `<span class="json-number">${obj}</span>${trailingComma}`;
     }
     
     if (type === 'string') {
-      return `<span class="json-string">"${escapeHtml(obj)}"</span>`;
+      return `<span class="json-string">"${escapeHtml(obj)}"</span>${trailingComma}`;
     }
     
     if (Array.isArray(obj)) {
       if (obj.length === 0) {
-        return `<span class="json-bracket">[]</span>`;
+        return `<span class="json-bracket">[]${trailingComma}</span>`;
       }
       
       const id = 'collapse-' + Math.random().toString(36).substring(2, 11);
@@ -394,13 +398,13 @@
       html += `<div class="json-content" id="${id}">`;
       
       obj.forEach((item, index) => {
-        const itemHtml = syntaxHighlightJson(item, depth + 1, false);
         const comma = index < obj.length - 1 ? ',' : '';
-        html += `<div>${nextIndent}${itemHtml}${comma}</div>`;
+        const itemHtml = syntaxHighlightJson(item, depth + 1, false, comma);
+        html += `<div>${nextIndent}${itemHtml}</div>`;
       });
       
       html += `</div>`;
-      html += `<div>${indent}<span class="json-bracket">]</span></div>`;
+      html += `<div>${indent}<span class="json-bracket">]${trailingComma}</span></div>`;
       html += isRoot ? `</div>` : '';
       return html;
     }
@@ -408,7 +412,7 @@
     if (type === 'object') {
       const keys = Object.keys(obj);
       if (keys.length === 0) {
-        return `<span class="json-bracket">{}</span>`;
+        return `<span class="json-bracket">{}${trailingComma}</span>`;
       }
       
       const id = 'collapse-' + Math.random().toString(36).substring(2, 11);
@@ -422,11 +426,11 @@
       keys.forEach((key, index) => {
         const value = obj[key];
         const comma = index < keys.length - 1 ? ',' : '';
-        html += `<div>${nextIndent}<span class="json-key">"${escapeHtml(key)}"</span>: ${syntaxHighlightJson(value, depth + 1, false)}${comma}</div>`;
+        html += `<div>${nextIndent}<span class="json-key">"${escapeHtml(key)}"</span>: ${syntaxHighlightJson(value, depth + 1, false, comma)}</div>`;
       });
       
       html += `</div>`;
-      html += `<div>${indent}<span class="json-bracket">}</span></div>`;
+      html += `<div>${indent}<span class="json-bracket">}${trailingComma}</span></div>`;
       html += isRoot ? `</div>` : '';
       return html;
     }
@@ -546,6 +550,38 @@
           type: 'CLEAR_TAB_DATA',
           tabId: tabs[0].id
         });
+      }
+    });
+  }
+  
+  function refreshDataLayer() {
+    const refreshIcon = document.querySelector('.refresh-icon');
+    if (!refreshIcon) {
+      console.error('Refresh icon not found');
+      return;
+    }
+    
+    refreshIcon.classList.add('spinning');
+    
+    // Send message to background to re-inject and fetch dataLayer
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+      if (tabs[0]) {
+        chrome.runtime.sendMessage({
+          action: 'refreshDataLayer',
+          tabId: tabs[0].id
+        }, (response) => {
+          // Stop spinning after response or timeout
+          setTimeout(() => {
+            if (refreshIcon) {
+              refreshIcon.classList.remove('spinning');
+            }
+          }, 1000);
+        });
+      } else {
+        // No active tab, remove spinning immediately
+        if (refreshIcon) {
+          refreshIcon.classList.remove('spinning');
+        }
       }
     });
   }

@@ -4,14 +4,83 @@
   
   // Check if already injected
   if (window.__DATALAYER_VISUALIZER_INJECTED__) {
+    console.log('DataLayer Visualizer: Already injected, skipping');
     return;
   }
   window.__DATALAYER_VISUALIZER_INJECTED__ = true;
   
   let eventIndex = 0;
   
+  // Track seen events to prevent duplicates
+  const seenEvents = new Set();
+  
+  // Constants for deduplication
+  const TIME_WINDOW_MS = 100; // Time window for fingerprinting (milliseconds)
+  const MAX_FINGERPRINTS = 1000; // Maximum fingerprints to keep in memory
+  const CLEANUP_COUNT = 500; // Number of fingerprints to remove during cleanup
+  
+  // Generate a fingerprint for an event to detect duplicates
+  function generateEventFingerprint(event) {
+    try {
+      // Sort object keys recursively to ensure consistent stringification
+      const sortedEvent = sortObjectKeys(event);
+      const content = JSON.stringify(sortedEvent);
+      const timeWindow = Math.floor(Date.now() / TIME_WINDOW_MS);
+      return `${content}_${timeWindow}`;
+    } catch (e) {
+      // Handle circular references or other JSON.stringify errors
+      // Use a fallback fingerprint that includes both keys and a hash of values
+      console.warn('DataLayer Visualizer: Error creating fingerprint, using fallback', e);
+      const keys = Object.keys(event || {}).sort();
+      const valueHash = keys.map(k => {
+        try {
+          return typeof event[k] === 'object' ? Object.keys(event[k] || {}).length : String(event[k]);
+        } catch {
+          return 'unknown';
+        }
+      }).join('|');
+      const timeWindow = Math.floor(Date.now() / TIME_WINDOW_MS);
+      return `${keys.join(',')}_${valueHash}_${timeWindow}`;
+    }
+  }
+  
+  // Recursively sort object keys for consistent stringification
+  function sortObjectKeys(obj) {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(sortObjectKeys);
+    }
+    const sorted = {};
+    Object.keys(obj).sort().forEach(key => {
+      sorted[key] = sortObjectKeys(obj[key]);
+    });
+    return sorted;
+  }
+  
   // Function to send events to content script
   function sendDataLayerEvent(event, originalPush) {
+    // Generate fingerprint for deduplication
+    const fingerprint = generateEventFingerprint(event);
+    
+    // Skip if we've seen this exact event recently
+    if (seenEvents.has(fingerprint)) {
+      console.log('DataLayer Visualizer: Skipping duplicate event', event);
+      return;
+    }
+    seenEvents.add(fingerprint);
+    
+    // Clean up old fingerprints periodically to prevent memory bloat
+    if (seenEvents.size > MAX_FINGERPRINTS) {
+      // JavaScript Sets maintain insertion order (ES6+ spec guarantee)
+      // Array.from preserves this order, so first N entries are oldest
+      // This is critical for FIFO cleanup behavior
+      const toDelete = Array.from(seenEvents).slice(0, CLEANUP_COUNT);
+      toDelete.forEach(fp => seenEvents.delete(fp));
+      console.log('DataLayer Visualizer: Cleaned up old fingerprints');
+    }
+    
     const eventData = {
       index: eventIndex++,
       timestamp: Date.now(),
@@ -129,6 +198,22 @@
       configurable: true
     });
   }
+  
+  // Listen for refresh requests
+  window.addEventListener('message', function(event) {
+    // Only accept messages from same window
+    if (event.source !== window) return;
+    
+    if (event.data.type === 'REFRESH_DATALAYER') {
+      // Re-scan window.dataLayer and send all events
+      if (window.dataLayer && Array.isArray(window.dataLayer)) {
+        console.log('DataLayer Visualizer: Refreshing dataLayer, found', window.dataLayer.length, 'events');
+        window.dataLayer.forEach((event) => {
+          sendDataLayerEvent(event, false);
+        });
+      }
+    }
+  });
   
   console.log('DataLayer Visualizer: Monitoring active');
 })();
