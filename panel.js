@@ -73,7 +73,7 @@
   function loadSettings() {
     // Load column width
     const savedWidth = localStorage.getItem('columnWidth');
-    if (savedWidth) {
+    if (savedWidth && eventsPanel) {
       columnWidth = parseFloat(savedWidth);
       eventsPanel.style.width = columnWidth + '%';
     }
@@ -95,30 +95,44 @@
   
   function setupEventListeners() {
     // Clear all button
-    clearAllBtn.addEventListener('click', clearAllEvents);
+    if (clearAllBtn) {
+      clearAllBtn.addEventListener('click', clearAllEvents);
+    }
     
     // Refresh button
-    refreshBtn.addEventListener('click', refreshDataLayer);
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', refreshDataLayer);
+    }
     
     // Persist toggle
-    persistToggle.addEventListener('click', togglePersist);
+    if (persistToggle) {
+      persistToggle.addEventListener('click', togglePersist);
+    }
     
     // GA4 DebugView button
-    ga4DebugViewBtn.addEventListener('click', openGA4DebugView);
-    ga4DebugViewBtn.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      openSettingsModal();
-    });
+    if (ga4DebugViewBtn) {
+      ga4DebugViewBtn.addEventListener('click', openGA4DebugView);
+      ga4DebugViewBtn.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        openSettingsModal();
+      });
+    }
     
     // Resizable divider
     setupResizableDivider();
     
     // Copy JSON button
-    copyJsonBtn.addEventListener('click', copySelectedEventJson);
+    if (copyJsonBtn) {
+      copyJsonBtn.addEventListener('click', copySelectedEventJson);
+    }
     
     // Expand/Collapse buttons
-    expandAllBtn.addEventListener('click', () => toggleAllJson(false));
-    collapseAllBtn.addEventListener('click', () => toggleAllJson(true));
+    if (expandAllBtn) {
+      expandAllBtn.addEventListener('click', () => toggleAllJson(false));
+    }
+    if (collapseAllBtn) {
+      collapseAllBtn.addEventListener('click', () => toggleAllJson(true));
+    }
     
     // Listen for navigation events
     chrome.devtools.network.onNavigated.addListener(function(url) {
@@ -130,7 +144,9 @@
     });
     
     // Theme toggle button
-    themeToggle.addEventListener('click', toggleTheme);
+    if (themeToggle) {
+      themeToggle.addEventListener('click', toggleTheme);
+    }
   }
   
   function initTheme() {
@@ -147,13 +163,14 @@
   }
   
   function applyTheme(theme) {
+    if (!themeToggle) return;
     const themeIcon = themeToggle.querySelector('.theme-icon');
     if (theme === 'dark') {
       document.body.classList.add('dark');
-      themeIcon.textContent = '☀️';
+      if (themeIcon) themeIcon.textContent = '☀️';
     } else {
       document.body.classList.remove('dark');
-      themeIcon.textContent = '🌙';
+      if (themeIcon) themeIcon.textContent = '🌙';
     }
   }
   
@@ -227,6 +244,8 @@
   }
   
   function renderEventsList() {
+    if (!eventsList || !eventCount) return;
+    
     eventsList.innerHTML = '';
     eventCount.textContent = events.length;
     
@@ -524,12 +543,15 @@
   }
   
   function updateGTMStatus(gtmPreview) {
-    if (gtmPreview.active) {
-      gtmStatus.classList.add('active');
-      const containerText = gtmPreview.containerIds.length > 0 
-        ? ` (${gtmPreview.containerIds.join(', ')})` 
-        : '';
-      gtmStatus.querySelector('.status-text').textContent = `GTM Preview: Active${containerText}`;
+    if (!gtmStatus || !gtmPreview.active) return;
+    
+    gtmStatus.classList.add('active');
+    const containerText = gtmPreview.containerIds.length > 0 
+      ? ` (${gtmPreview.containerIds.join(', ')})` 
+      : '';
+    const statusText = gtmStatus.querySelector('.status-text');
+    if (statusText) {
+      statusText.textContent = `GTM Preview: Active${containerText}`;
     }
   }
   
@@ -538,7 +560,9 @@
     networkRequests.clear();
     selectedEventIndex = null;
     renderEventsList();
-    detailsContent.innerHTML = '<div class="placeholder"><span>👈 Select an event to view details</span></div>';
+    if (detailsContent) {
+      detailsContent.innerHTML = '<div class="placeholder"><span>👈 Select an event to view details</span></div>';
+    }
     
     // Clear persisted events
     chrome.storage.session.remove(['persistedEvents']);
@@ -593,15 +617,16 @@
   }
   
   function updatePersistToggle() {
+    if (!persistToggle) return;
     const icon = document.getElementById('persistIcon');
     if (persistEnabled) {
       persistToggle.classList.add('btn-primary');
       persistToggle.classList.remove('btn-secondary');
-      icon.textContent = '💾';
+      if (icon) icon.textContent = '💾';
     } else {
       persistToggle.classList.remove('btn-primary');
       persistToggle.classList.add('btn-secondary');
-      icon.textContent = '📋';
+      if (icon) icon.textContent = '📋';
     }
   }
   
@@ -692,7 +717,7 @@
   }
   
   function copySelectedEventJson() {
-    if (selectedEventIndex === null) return;
+    if (selectedEventIndex === null || !copyJsonBtn) return;
     
     const event = events[selectedEventIndex];
     if (event && !event.isNavigationMarker) {
@@ -708,6 +733,8 @@
   }
   
   function setupResizableDivider() {
+    if (!divider) return;
+    
     let isDragging = false;
     
     divider.addEventListener('mousedown', (e) => {
