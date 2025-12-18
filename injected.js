@@ -73,8 +73,9 @@
     
     // Clean up old fingerprints periodically to prevent memory bloat
     if (seenEvents.size > MAX_FINGERPRINTS) {
-      // Sets maintain insertion order, so first N entries are oldest
-      // Get oldest entries and delete them
+      // JavaScript Sets maintain insertion order (ES6+ spec guarantee)
+      // Array.from preserves this order, so first N entries are oldest
+      // This is critical for FIFO cleanup behavior
       const toDelete = Array.from(seenEvents).slice(0, CLEANUP_COUNT);
       toDelete.forEach(fp => seenEvents.delete(fp));
       console.log('DataLayer Visualizer: Cleaned up old fingerprints');
