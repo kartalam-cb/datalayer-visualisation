@@ -10,15 +10,17 @@
   --secondary-color: #34a853;
   --danger-color: #ea4335;
   --warning-color: #fbbc04;
+  
+  /* Light mode (default) */
   --bg-primary: #ffffff;
   --bg-secondary: #f1f5f9;
   --bg-hover: #e8f0fe;
   --bg-selected: #d2e3fc;
   --bg-toolbar: #e2e8f0;
   --bg-events-panel: #f8fafc;
-  --border-color: #dadce0;
-  --text-primary: #202124;
-  --text-secondary: #5f6368;
+  --border-color: #cbd5e1;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
   --text-tertiary: #80868b;
   
   /* JSON Syntax highlighting colors */
@@ -27,7 +29,29 @@
   --json-number: #ea580c;
   --json-boolean: #9333ea;
   --json-null: #6b7280;
-  --json-bracket: #444;
+  --json-bracket: #374151;
+}
+
+body.dark {
+  /* Dark mode */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-hover: #334155;
+  --bg-selected: #475569;
+  --bg-toolbar: #334155;
+  --bg-events-panel: #1e293b;
+  --border-color: #475569;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  
+  /* Syntax highlighting - lighter versions */
+  --json-key: #60a5fa;
+  --json-string: #4ade80;
+  --json-number: #fb923c;
+  --json-boolean: #c084fc;
+  --json-null: #9ca3af;
+  --json-bracket: #cbd5e1;
 }
 
 body {
