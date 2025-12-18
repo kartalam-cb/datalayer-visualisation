@@ -543,15 +543,17 @@
   }
   
   function updateGTMStatus(gtmPreview) {
-    if (!gtmStatus || !gtmPreview.active) return;
+    if (!gtmStatus) return;
     
-    gtmStatus.classList.add('active');
-    const containerText = gtmPreview.containerIds.length > 0 
-      ? ` (${gtmPreview.containerIds.join(', ')})` 
-      : '';
-    const statusText = gtmStatus.querySelector('.status-text');
-    if (statusText) {
-      statusText.textContent = `GTM Preview: Active${containerText}`;
+    if (gtmPreview.active) {
+      gtmStatus.classList.add('active');
+      const containerText = gtmPreview.containerIds.length > 0 
+        ? ` (${gtmPreview.containerIds.join(', ')})` 
+        : '';
+      const statusText = gtmStatus.querySelector('.status-text');
+      if (statusText) {
+        statusText.textContent = `GTM Preview: Active${containerText}`;
+      }
     }
   }
   
